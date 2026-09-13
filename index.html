@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f7f7f7" />
+  <title>OpenDesign</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23202020'/><path d='M8 12h16v2H8zM8 18h16v2H8z' fill='%2387ea5c'/></svg>" />
+  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    /* Critical 4-file build overrides - ensure standalone works without Next.js */
+    #root { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    .four-file-badge {
+      position: fixed; bottom: 12px; right: 12px; z-index: 9999;
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      padding: 6px 10px; border-radius: 999px; font-size: 11px;
+      font-family: var(--mono); color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+    }
+  </style>
+  <script>
+    (function(){
+      document.documentElement.setAttribute('data-theme','light');
+      try{
+        var c=JSON.parse(localStorage.getItem('open-design:config')||'{}');
+        var a=typeof c.accentColor==='string'&&/^#[0-9a-fA-F]{6}$/.test(c.accentColor.trim())?c.accentColor.trim().toLowerCase():'#353535';
+        if(c.configMigrationVersion!==3&&(a==='#87ea5c'||a==='#c96442'))a='#353535';
+        var s=document.documentElement.style;
+        s.setProperty('--accent',a);
+        s.setProperty('--accent-strong','color-mix(in srgb, '+a+' 82%, var(--text-strong))');
+        s.setProperty('--accent-soft','color-mix(in srgb, '+a+' 12%, var(--bg-subtle))');
+        s.setProperty('--accent-tint','color-mix(in srgb, '+a+' 6%, var(--bg-panel))');
+        s.setProperty('--accent-hover','color-mix(in srgb, '+a+' 86%, var(--text-strong))');
+      }catch(e){}
+    })();
+  </script>
+</head>
+<body>
+  <div id="root">
+    <!-- App shell - preserved from original EntryShell + Workspace structure -->
+    <div class="app workspace-shell" data-client-type="web" data-host-platform="web">
+      <!-- Top tabs bar -->
+      <div class="workspace-tabs-chrome app-chrome-header">
+        <div class="workspace-tabs-bar">
+          <div class="workspace-tabs-left">
+            <div class="workspace-tab active" data-tab="home">
+              <span class="tab-icon">◐</span>
+              <span>Home</span>
+            </div>
+          </div>
+          <div class="workspace-tabs-right">
+            <div class="app-chrome-actions">
+              <button class="od-icon-btn" id="settings-btn" title="Settings">⚙</button>
+              <button class="od-icon-btn" id="account-btn" title="Account">◍</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry-shell">
+        <!-- Left nav rail - preserved UI -->
+        <nav class="entry-nav-rail">
+          <div class="nav-rail-top">
+            <div class="nav-rail-logo">
+              <div class="logo-mark">OD</div>
+            </div>
+            <div class="nav-rail-items">
+              <button class="nav-rail-item active" data-route="home" title="Home">
+                <span class="nav-icon">⌂</span><span class="nav-label">Home</span>
+              </button>
+              <button class="nav-rail-item" data-route="projects" title="Projects">
+                <span class="nav-icon">◫</span><span class="nav-label">Projects</span>
+              </button>
+              <button class="nav-rail-item" data-route="designs" title="Designs">
+                <span class="nav-icon">⬙</span><span class="nav-label">Designs</span>
+              </button>
+              <button class="nav-rail-item" data-route="design-systems" title="Design Systems">
+                <span class="nav-icon">⬣</span><span class="nav-label">Systems</span>
+              </button>
+              <button class="nav-rail-item" data-route="marketplace" title="Marketplace">
+                <span class="nav-icon">✦</span><span class="nav-label">Market</span>
+              </button>
+              <button class="nav-rail-item" data-route="brands" title="Brands">
+                <span class="nav-icon">◆</span><span class="nav-label">Brands</span>
+              </button>
+              <button class="nav-rail-item" data-route="connectors" title="Connectors">
+                <span class="nav-icon">⎇</span><span class="nav-label">Connect</span>
+              </button>
+            </div>
+          </div>
+          <div class="nav-rail-bottom">
+            <button class="nav-rail-item" data-route="community" title="Community">
+              <span class="nav-icon">♡</span><span class="nav-label">Community</span>
+            </button>
+            <div class="nav-rail-account">
+              <div class="avatar-menu">
+                <div class="avatar">U</div>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Main entry view -->
+        <main class="entry">
+          <div class="entry-view" id="entry-view">
+            <!-- Home View - preserved from HomeView.tsx -->
+            <div class="home-view route-view active" data-route="home">
+              <div class="home-hero">
+                <div class="home-hero-bg">
+                  <div class="app-wash-kinetic-grid"></div>
+                </div>
+                <div class="home-hero-content">
+                  <h1 class="home-hero-title">What will you design today?</h1>
+                  <p class="home-hero-subtitle">Describe your idea, and OpenDesign will build it with your favorite code agent.</p>
+                  
+                  <div class="home-composer">
+                    <div class="composer-shell">
+                      <div class="composer-input-wrap">
+                        <textarea 
+                          id="home-prompt" 
+                          class="composer-textarea" 
+                          placeholder="Ask to build a landing page, dashboard, presentation, or anything you imagine..."
+                          rows="3"
+                        ></textarea>
+                        <div class="composer-footer">
+                          <div class="composer-left">
+                            <button class="composer-chip" data-chip="landing"><span>◫</span> Landing</button>
+                            <button class="composer-chip" data-chip="dashboard"><span>◧</span> Dashboard</button>
+                            <button class="composer-chip" data-chip="presentation"><span>⬙</span> Deck</button>
+                            <button class="composer-chip" data-chip="prototype"><span>⬔</span> Prototype</button>
+                          </div>
+                          <div class="composer-right">
+                            <button class="composer-plus-btn" title="Attach files">+</button>
+                            <button class="composer-send" id="home-send">
+                              <span class="send-icon">↑</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="composer-hints">
+                      <span>Press <kbd>↵</kbd> to send, <kbd>⇧↵</kbd> for new line</span>
+                    </div>
+                  </div>
+
+                  <div class="home-quick-actions">
+                    <button class="quick-action-card" data-action="figma">
+                      <span class="qa-icon">◩</span>
+                      <span class="qa-text"><strong>Import from Figma</strong><br/>Paste a Figma link</span>
+                    </button>
+                    <button class="quick-action-card" data-action="brand">
+                      <span class="qa-icon">◆</span>
+                      <span class="qa-text"><strong>Add brand kit</strong><br/>Logo, colors, fonts</span>
+                    </button>
+                    <button class="quick-action-card" data-action="template">
+                      <span class="qa-icon">✦</span>
+                      <span class="qa-text"><strong>Browse templates</strong><br/>100+ starters</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="home-sections">
+                <section class="home-section recent-projects">
+                  <div class="section-header">
+                    <h2>Recent projects</h2>
+                    <button class="section-action" data-route="projects">View all</button>
+                  </div>
+                  <div class="recent-projects-strip" id="recent-projects">
+                    <!-- Populated by app.js -->
+                  </div>
+                </section>
+
+                <section class="home-section community-templates">
+                  <div class="section-header">
+                    <h2>From the community</h2>
+                    <button class="section-action" data-route="community">Explore</button>
+                  </div>
+                  <div class="community-grid" id="community-grid">
+                    <!-- Populated by app.js -->
+                  </div>
+                </section>
+              </div>
+            </div>
+
+            <!-- Projects View -->
+            <div class="projects-view route-view" data-route="projects">
+              <div class="view-header">
+                <h1>Projects</h1>
+                <div class="view-actions">
+                  <input type="search" id="project-search" placeholder="Search projects..." class="od-input" />
+                  <button class="od-btn primary" id="new-project-btn">New project</button>
+                </div>
+              </div>
+              <div class="projects-grid" id="projects-grid"></div>
+            </div>
+
+            <!-- Designs View -->
+            <div class="designs-view route-view" data-route="designs">
+              <div class="view-header">
+                <h1>Designs</h1>
+                <div class="view-actions">
+                  <button class="od-btn">Import</button>
+                </div>
+              </div>
+              <div class="designs-list" id="designs-list"></div>
+            </div>
+
+            <!-- Design Systems View -->
+            <div class="design-systems-view route-view" data-route="design-systems">
+              <div class="view-header">
+                <h1>Design Systems</h1>
+                <button class="od-btn primary" id="new-ds-btn">New system</button>
+              </div>
+              <div class="ds-grid" id="ds-grid"></div>
+            </div>
+
+            <!-- Marketplace View -->
+            <div class="marketplace-view route-view" data-route="marketplace">
+              <div class="view-header">
+                <h1>Marketplace</h1>
+                <div class="view-tabs">
+                  <button class="view-tab active" data-tab="plugins">Plugins</button>
+                  <button class="view-tab" data-tab="skills">Skills</button>
+                  <button class="view-tab" data-tab="templates">Templates</button>
+                </div>
+              </div>
+              <div class="marketplace-content" id="marketplace-content"></div>
+            </div>
+
+            <!-- Brands View -->
+            <div class="brands-view route-view" data-route="brands">
+              <div class="view-header">
+                <h1>Brands</h1>
+                <button class="od-btn primary">New brand</button>
+              </div>
+              <div class="brands-grid" id="brands-grid"></div>
+            </div>
+
+            <!-- Project Detail View - preserved from ProjectView.tsx -->
+            <div class="project-view route-view" data-route="project-detail">
+              <div class="project-view-layout">
+                <div class="project-view-sidebar">
+                  <div class="project-header">
+                    <button class="back-btn" id="back-to-projects">← Back</button>
+                    <h2 id="project-title">Project</h2>
+                    <div class="project-meta" id="project-meta"></div>
+                  </div>
+                  <div class="project-files-panel">
+                    <div class="panel-header">
+                      <span>Files</span>
+                      <button class="od-icon-btn">+</button>
+                    </div>
+                    <div class="files-list" id="files-list"></div>
+                  </div>
+                </div>
+                
+                <div class="project-view-main">
+                  <div class="workspace-split">
+                    <!-- Chat pane - preserved from ChatPane.tsx -->
+                    <div class="pane chat-pane">
+                      <div class="chat-messages" id="chat-messages">
+                        <div class="chat-welcome">
+                          <div class="welcome-icon">✦</div>
+                          <h3>Start building</h3>
+                          <p>Describe what you want to change or add to your project.</p>
+                        </div>
+                      </div>
+                      <div class="chat-composer-fixed-layer">
+                        <div class="chat-composer">
+                          <div class="composer-input-wrap">
+                            <textarea id="chat-input" placeholder="Ask to edit, add features, or fix..." rows="2"></textarea>
+                            <div class="composer-footer">
+                              <div class="composer-left">
+                                <button class="od-icon-btn" title="Attach">📎</button>
+                                <button class="od-icon-btn" title="Mention">@</button>
+                              </div>
+                              <button class="composer-send" id="chat-send">↑</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Viewer pane - preserved artifact preview -->
+                    <div class="pane viewer-pane">
+                      <div class="viewer-header">
+                        <div class="viewer-tabs" id="viewer-tabs">
+                          <button class="viewer-tab active" data-view="preview">Preview</button>
+                          <button class="viewer-tab" data-view="code">Code</button>
+                        </div>
+                        <div class="viewer-actions">
+                          <button class="od-icon-btn" title="Open in browser">↗</button>
+                          <button class="od-icon-btn" title="Copy link">⧉</button>
+                          <button class="od-btn small primary">Publish</button>
+                        </div>
+                      </div>
+                      <div class="viewer-content">
+                        <iframe id="artifact-iframe" class="artifact-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+                        <div id="code-view" class="code-view hidden">
+                          <pre><code id="code-content"></code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Modals - preserved from original -->
+    <div id="modal-root"></div>
+    
+    <!-- Toasts -->
+    <div id="toast-root" class="toast-layer"></div>
+    
+    <!-- Tooltip layer -->
+    <div id="tooltip-root" class="od-tooltip-layer"></div>
+
+    <!-- Four-file badge -->
+    <div class="four-file-badge">4-file build • full fidelity</div>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
